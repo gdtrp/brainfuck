@@ -18,6 +18,9 @@ func (c *Compiler) registerOperation(operation stack.ExternalOperation) error {
 	c.operations[operation.Command()] = operation
 	return nil
 }
+/*
+compile provided script. read byte data from reader and write outgoing bytes to writer. all unsupported tokens will be ignored
+ */
 func (c *Compiler) Compile(script io.Reader, reader io.Reader, writer io.Writer) error {
 	context := stack.NewContext(reader, writer)
 	token := make([]byte, 1)
@@ -37,7 +40,7 @@ func (c *Compiler) Compile(script io.Reader, reader io.Reader, writer io.Writer)
 		}
 
 	}
-	return nil
+	return context.ValidateExecution()
 }
 
 func New(ops ...stack.ExternalOperation) (*Compiler, error) {

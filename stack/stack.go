@@ -1,5 +1,7 @@
 package stack
 
+import "errors"
+
 type LinkedElement interface {
 	Next() LinkedElement
 	Previous() LinkedElement
@@ -174,19 +176,26 @@ func (s *Stack) next() ExternalOperation {
 	return result
 }
 //add new operation to stack
-func (s *Stack) prepareStack(operation ExternalOperation, ctx *Context) {
+func (s *Stack) prepareStack(operation ExternalOperation, ctx *Context) error {
 	internal, ok := operation.(internalOperation)
 	if ok && internal.OnAdd() != nil {
-		internal.OnAdd()(ctx)
+		if error := internal.OnAdd()(ctx); error != nil{
+			return error
+		}
 	}
 	s.addToStack(operation)
 	if ok && internal.AfterAdd() != nil {
-		internal.AfterAdd()(ctx)
+		if error := internal.AfterAdd()(ctx); error != nil{
+			return error
+		}
 	}
+	return nil
 }
 //add new operation to stack and execute
 func (s *Stack) execute(operation ExternalOperation, ctx *Context) error {
-	s.prepareStack(operation, ctx)
+	if error := s.prepareStack(operation, ctx); error != nil{
+		return error
+	}
 	//specific case for loops which needs to be added but without execution (covers excludes look-ahead requirement)
 	if !s.isSkipExecution() {
 		for s.hasNext() {
@@ -202,13 +211,17 @@ func (s *Stack) execute(operation ExternalOperation, ctx *Context) error {
 func (s *Stack) initLoop() {
 	s.addLoopContainer()
 }
-//mark current loop as finished
-func (s *Stack) terminateLoop() {
+//mark current loop as finished. returns error if initLoop method wasn't called
+func (s *Stack) terminateLoop() error{
+	if s.currentLoop == nil{
+		return errors.New("missing start loop")
+	}
 	s.lastAdded = s.currentLoop
 	if s.skip == s.currentLoop {
 		s.skip = nil
 	}
 	s.currentLoop = s.currentLoop.GetPreviousLoop()
+	return nil
 }
 //rewind loop to beginning
 func (s *Stack) endLoop() {
@@ -225,4 +238,11 @@ func (s *Stack) breakLoop() {
 	if !s.current.HasMoreElements() {
 		s.skip = s.current.CurrentLoop()
 	}
+}
+
+func (s *Stack) validateExecution(c *Context) error {
+	if s.currentLoop != nil{
+		return errors.New("missing closing brackets")
+	}
+	return nil
 }

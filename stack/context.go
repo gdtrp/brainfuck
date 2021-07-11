@@ -58,7 +58,7 @@ func (c *Context) GetByte(index int) (byte, error) {
 	return c.Memory[index], nil
 }
 func validate(index int, memory []byte) error {
-	if index > len(memory) || index < 0 {
+	if index >= len(memory) || index < 0 {
 		return errors.New("index is out of range")
 	}
 	return nil
@@ -78,4 +78,8 @@ func (c *Context) SetByte(index int, b byte) error {
 //execute next operation from stack
 func (c *Context) Execute(operation ExternalOperation) error {
 	return c.Stack.execute(operation, c)
+}
+
+func (c *Context) ValidateExecution() error {
+	return c.Stack.validateExecution(c)
 }

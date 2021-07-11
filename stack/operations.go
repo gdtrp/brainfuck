@@ -114,7 +114,7 @@ var startLoop = operation{
 var endLoop = operation{
 	token: "]",
 	afterAdd: func(ctx *Context) error {
-		ctx.Stack.terminateLoop()
+		return ctx.Stack.terminateLoop()
 		return nil
 	},
 	action: func(ctx *Context) error {

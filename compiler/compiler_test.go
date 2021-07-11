@@ -114,3 +114,35 @@ func TestCompilerWithExistingCustomCommand(t *testing.T) {
 		t.Fatalf("error shouldn't be nil")
 	}
 }
+
+
+
+var errorScripts = []struct {
+	name   string
+	script string
+	input  []byte
+}{
+
+
+
+	{"mismatched closing bracket", `[[[[[-]-]`, nil},
+	{"mismatched closing bracket", `[--`, nil},
+		{"mismatched opening bracket", `[--]]`, nil},
+	{"overflow", `+[>+]`, nil},
+}
+
+func TestCompiler_ErrorScript(t *testing.T) {
+	compiler, error := New()
+	if error != nil {
+		t.Fatalf("error should be nil")
+	}
+	for _, test := range errorScripts {
+		t.Run(test.name, func(t *testing.T) {
+			var buf bytes.Buffer
+			if error := compiler.Compile(bytes.NewBuffer([]byte(test.script)), bytes.NewBuffer(test.input), &buf); error == nil {
+				t.Fatalf("error must be present")
+			}
+		})
+	}
+
+}
