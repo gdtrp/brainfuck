@@ -1,7 +1,7 @@
 package compiler
 
 import (
-	"brainfuck/stack"
+	"github.com/gdtrp/brainfuck/stack"
 	"bytes"
 	"testing"
 )
