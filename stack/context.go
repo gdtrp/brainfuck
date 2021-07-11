@@ -69,8 +69,8 @@ func validate(index int, memory []byte) error {
 }
 
 //sets current cell index value
-func (c *Context) SetCurrentByte(b byte) {
-	c.SetByte(c.CurrentIdx, b)
+func (c *Context) SetCurrentByte(b byte) error{
+	return c.SetByte(c.CurrentIdx, b)
 }
 
 //set byte value of provided cell index

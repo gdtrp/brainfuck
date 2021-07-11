@@ -43,8 +43,7 @@ func GetDefaultOperations() []operation {
 var incr = operation{
 	token: "+",
 	action: func(ctx *Context) error {
-		ctx.SetCurrentByte(ctx.GetCurrentByte() + 1)
-		return nil
+		return ctx.SetCurrentByte(ctx.GetCurrentByte() + 1)
 	},
 }
 
@@ -52,8 +51,7 @@ var incr = operation{
 var decr = operation{
 	token: "-",
 	action: func(ctx *Context) error {
-		ctx.SetCurrentByte(ctx.GetCurrentByte() - 1)
-		return nil
+		return ctx.SetCurrentByte(ctx.GetCurrentByte() - 1)
 	},
 }
 
@@ -89,8 +87,7 @@ var input = operation{
 	action: func(ctx *Context) error {
 		b := make([]byte, 1)
 		if _, error := ctx.Reader.Read(b); error == nil {
-			ctx.SetCurrentByte(b[0])
-			return nil
+			return ctx.SetCurrentByte(b[0])
 		} else {
 			if error == io.EOF {
 				return nil
@@ -121,7 +118,6 @@ var endLoop = operation{
 	token: "]",
 	afterAdd: func(ctx *Context) error {
 		return ctx.Stack.terminateLoop()
-		return nil
 	},
 	action: func(ctx *Context) error {
 		ctx.Stack.endLoop()
