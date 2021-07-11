@@ -1,9 +1,9 @@
 package compiler
 
 import (
-	"github.com/gdtrp/brainfuck/stack"
 	"errors"
 	"fmt"
+	"github.com/gdtrp/brainfuck/stack"
 	"io"
 )
 
