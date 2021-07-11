@@ -4,12 +4,12 @@ import (
 	"io"
 )
 
-//internal interface for system stack calls
+//internal interface for system commands
 type internalOperation interface {
 	ExternalOperation
-	//action will be exected before adding ExternalOperation to stack. Can be nil
+	//action will be executed before adding operation to stack. Can be nil
 	OnAdd() func(*Context) error
-	//action will be exected after adding ExternalOperation to stack. Can be nil
+	//action will be executed after adding operation to stack. Can be nil
 	AfterAdd() func(*Context) error
 }
 

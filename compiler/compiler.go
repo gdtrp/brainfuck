@@ -8,14 +8,14 @@ import (
 )
 
 type Compiler struct {
-	operations map[stack.Command]stack.ExternalOperation
+	commands map[stack.Command]stack.ExternalOperation
 }
 
 func (c *Compiler) registerOperation(operation stack.ExternalOperation) error {
-	if _, ok := c.operations[operation.Command()]; ok {
+	if _, ok := c.commands[operation.Command()]; ok {
 		return errors.New(fmt.Sprintf("operation %v already present in the supported commands list", operation.Command()))
 	}
-	c.operations[operation.Command()] = operation
+	c.commands[operation.Command()] = operation
 	return nil
 }
 
@@ -27,7 +27,7 @@ func (c Compiler) Compile(script io.Reader, reader io.Reader, writer io.Writer) 
 	token := make([]byte, 1)
 	for {
 		if _, err := script.Read(token); err == nil {
-			if operation, found := c.operations[stack.Command(token)]; found {
+			if operation, found := c.commands[stack.Command(token)]; found {
 				if err := context.Execute(operation); err != nil {
 					return err
 				}
@@ -45,11 +45,11 @@ func (c Compiler) Compile(script io.Reader, reader io.Reader, writer io.Writer) 
 }
 
 /*
-create new compiler. additional operations can also be provided.
+create new compiler. additional operations can also be provided. command name overlapping is not allowed
 */
 func New(ops ...stack.ExternalOperation) (Compiler, error) {
 	result := Compiler{
-		operations: make(map[stack.Command]stack.ExternalOperation),
+		commands: make(map[stack.Command]stack.ExternalOperation),
 	}
 	for _, o := range stack.GetDefaultOperations() {
 		if err := result.registerOperation(o); err != nil {

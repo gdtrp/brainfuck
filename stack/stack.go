@@ -248,7 +248,7 @@ func (s *Stack) breakLoop() {
 	}
 }
 
-func (s *Stack) validateExecution(c *Context) error {
+func (s *Stack) validateExecution() error {
 	if s.currentLoop != nil {
 		return errors.New("missing closing brackets")
 	}

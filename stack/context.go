@@ -88,5 +88,5 @@ func (c *Context) Execute(operation ExternalOperation) error {
 }
 
 func (c *Context) ValidateExecution() error {
-	return c.Stack.validateExecution(c)
+	return c.Stack.validateExecution()
 }
