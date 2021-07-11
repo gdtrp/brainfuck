@@ -76,8 +76,8 @@ var output = operation{
 	token: ".",
 
 	action: func(ctx *Context) error {
-		_, error := ctx.Writer.Write([]byte{ctx.GetCurrentByte()})
-		return error
+		_, err := ctx.Writer.Write([]byte{ctx.GetCurrentByte()})
+		return err
 	},
 }
 
@@ -86,13 +86,13 @@ var input = operation{
 	token: ",",
 	action: func(ctx *Context) error {
 		b := make([]byte, 1)
-		if _, error := ctx.Reader.Read(b); error == nil {
+		if _, err := ctx.Reader.Read(b); err == nil {
 			return ctx.SetCurrentByte(b[0])
 		} else {
-			if error == io.EOF {
+			if err == io.EOF {
 				return nil
 			}
-			return error
+			return err
 		}
 	},
 }

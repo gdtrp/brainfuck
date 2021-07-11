@@ -41,8 +41,8 @@ func (c *Context) GetIndex() int {
 
 //sets current memory cell index
 func (c *Context) SetIndex(index int) error {
-	if error := validate(index, c.Memory); error != nil {
-		return error
+	if err := validate(index, c.Memory); err != nil {
+		return err
 	}
 	c.CurrentIdx = index
 	return nil
@@ -56,8 +56,8 @@ func (c *Context) GetCurrentByte() byte {
 
 //returns byte value of provided cell index
 func (c *Context) GetByte(index int) (byte, error) {
-	if error := validate(index, c.Memory); error != nil {
-		return 0, error
+	if err := validate(index, c.Memory); err != nil {
+		return 0, err
 	}
 	return c.Memory[index], nil
 }
@@ -75,8 +75,8 @@ func (c *Context) SetCurrentByte(b byte) error{
 
 //set byte value of provided cell index
 func (c *Context) SetByte(index int, b byte) error {
-	if error := validate(index, c.Memory); error != nil {
-		return error
+	if err := validate(index, c.Memory); err != nil {
+		return err
 	}
 	c.Memory[index] = b
 	return nil

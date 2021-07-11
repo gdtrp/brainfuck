@@ -182,14 +182,14 @@ func (s *Stack) next() ExternalOperation {
 func (s *Stack) prepareStack(operation ExternalOperation, ctx *Context) error {
 	internal, ok := operation.(internalOperation)
 	if ok && internal.OnAdd() != nil {
-		if error := internal.OnAdd()(ctx); error != nil {
-			return error
+		if err := internal.OnAdd()(ctx); err != nil {
+			return err
 		}
 	}
 	s.addToStack(operation)
 	if ok && internal.AfterAdd() != nil {
-		if error := internal.AfterAdd()(ctx); error != nil {
-			return error
+		if err := internal.AfterAdd()(ctx); err != nil {
+			return err
 		}
 	}
 	return nil
@@ -197,8 +197,8 @@ func (s *Stack) prepareStack(operation ExternalOperation, ctx *Context) error {
 
 //add new operation to stack and execute
 func (s *Stack) execute(operation ExternalOperation, ctx *Context) error {
-	if error := s.prepareStack(operation, ctx); error != nil {
-		return error
+	if err := s.prepareStack(operation, ctx); err != nil {
+		return err
 	}
 	//specific case for loops which needs to be added but without execution (covers excludes look-ahead requirement)
 	if !s.isSkipExecution() {
