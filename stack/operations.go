@@ -38,6 +38,7 @@ func GetDefaultOperations() []operation {
 		incr, decr, ip, dp, output, input, startLoop, endLoop,
 	}
 }
+
 //increment operation
 var incr = operation{
 	token: "+",
@@ -46,6 +47,7 @@ var incr = operation{
 		return nil
 	},
 }
+
 //decrement operation
 var decr = operation{
 	token: "-",
@@ -62,6 +64,7 @@ var ip = operation{
 		return ctx.SetIndex(ctx.GetIndex() + 1)
 	},
 }
+
 //decrease current index operation
 var dp = operation{
 	token: "<",
@@ -69,6 +72,7 @@ var dp = operation{
 		return ctx.SetIndex(ctx.GetIndex() - 1)
 	},
 }
+
 //print current index value operation
 var output = operation{
 	token: ".",
@@ -78,6 +82,7 @@ var output = operation{
 		return error
 	},
 }
+
 //read current output byte to the current index
 var input = operation{
 	token: ",",
@@ -94,6 +99,7 @@ var input = operation{
 		}
 	},
 }
+
 //start loop operation
 var startLoop = operation{
 	token: "[",

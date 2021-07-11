@@ -115,19 +115,15 @@ func TestCompilerWithExistingCustomCommand(t *testing.T) {
 	}
 }
 
-
-
 var errorScripts = []struct {
 	name   string
 	script string
 	input  []byte
 }{
 
-
-
 	{"mismatched closing bracket", `[[[[[-]-]`, nil},
 	{"mismatched closing bracket", `[--`, nil},
-		{"mismatched opening bracket", `[--]]`, nil},
+	{"mismatched opening bracket", `[--]]`, nil},
 	{"overflow", `+[>+]`, nil},
 }
 

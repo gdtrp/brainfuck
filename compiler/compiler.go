@@ -18,10 +18,11 @@ func (c *Compiler) registerOperation(operation stack.ExternalOperation) error {
 	c.operations[operation.Command()] = operation
 	return nil
 }
+
 /*
 compile provided script. read byte data from reader and write outgoing bytes to writer. all unsupported tokens will be ignored
- */
-func (c *Compiler) Compile(script io.Reader, reader io.Reader, writer io.Writer) error {
+*/
+func (c Compiler) Compile(script io.Reader, reader io.Reader, writer io.Writer) error {
 	context := stack.NewContext(reader, writer)
 	token := make([]byte, 1)
 	for {
@@ -43,18 +44,21 @@ func (c *Compiler) Compile(script io.Reader, reader io.Reader, writer io.Writer)
 	return context.ValidateExecution()
 }
 
-func New(ops ...stack.ExternalOperation) (*Compiler, error) {
-	result := &Compiler{
+/*
+create new compiler. additional operations can also be provided.
+*/
+func New(ops ...stack.ExternalOperation) (Compiler, error) {
+	result := Compiler{
 		operations: make(map[stack.Command]stack.ExternalOperation),
 	}
 	for _, o := range stack.GetDefaultOperations() {
 		if err := result.registerOperation(o); err != nil {
-			return nil, err
+			return result, err
 		}
 	}
 	for _, o := range ops {
 		if err := result.registerOperation(o); err != nil {
-			return nil, err
+			return result, err
 		}
 	}
 	return result, nil

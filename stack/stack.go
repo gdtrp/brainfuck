@@ -36,14 +36,15 @@ type Stack struct {
 	nextElement LinkedElement
 	//link to loop needs to be skipped.
 	//if set all subsequent operations will not be executed until loop will not be closed
-	skip        LoopElement
+	skip LoopElement
 	//link to current executed element
-	current     LinkedElement
+	current LinkedElement
 	//link to current executing loop
 	currentLoop LoopElement
 	//link to last added element to stack.
-	lastAdded   LinkedElement
+	lastAdded LinkedElement
 }
+
 //High level struct contains links to previous and next elements in execution order
 type Link struct {
 	next     LinkedElement
@@ -54,7 +55,7 @@ type OperationContainer struct {
 	//Operation to execute
 	operation ExternalOperation
 	//Current loop link
-	loop      LoopElement
+	loop LoopElement
 }
 
 //LoopContainer struct
@@ -63,7 +64,6 @@ type LoopContainer struct {
 	//Link to first loop element
 	firstLoopElement OperationalElement
 }
-
 
 func (c *OperationContainer) Loop() LoopElement {
 	return c.loop
@@ -163,10 +163,12 @@ func (s *Stack) addLoopContainer() {
 	newOp := &LoopContainer{}
 	newOp.ConfigureLink(s)
 }
+
 //check if has next element in stack
 func (s *Stack) hasNext() bool {
 	return s.nextElement != nil
 }
+
 //retrieve element from stack and set next
 func (s *Stack) next() ExternalOperation {
 	current := s.nextElement.CurrentOperation()
@@ -175,25 +177,27 @@ func (s *Stack) next() ExternalOperation {
 	s.nextElement = current.Next()
 	return result
 }
+
 //add new operation to stack
 func (s *Stack) prepareStack(operation ExternalOperation, ctx *Context) error {
 	internal, ok := operation.(internalOperation)
 	if ok && internal.OnAdd() != nil {
-		if error := internal.OnAdd()(ctx); error != nil{
+		if error := internal.OnAdd()(ctx); error != nil {
 			return error
 		}
 	}
 	s.addToStack(operation)
 	if ok && internal.AfterAdd() != nil {
-		if error := internal.AfterAdd()(ctx); error != nil{
+		if error := internal.AfterAdd()(ctx); error != nil {
 			return error
 		}
 	}
 	return nil
 }
+
 //add new operation to stack and execute
 func (s *Stack) execute(operation ExternalOperation, ctx *Context) error {
-	if error := s.prepareStack(operation, ctx); error != nil{
+	if error := s.prepareStack(operation, ctx); error != nil {
 		return error
 	}
 	//specific case for loops which needs to be added but without execution (covers excludes look-ahead requirement)
@@ -207,13 +211,15 @@ func (s *Stack) execute(operation ExternalOperation, ctx *Context) error {
 	}
 	return nil
 }
+
 //add loop element to stack and set it current
 func (s *Stack) initLoop() {
 	s.addLoopContainer()
 }
+
 //mark current loop as finished. returns error if initLoop method wasn't called
-func (s *Stack) terminateLoop() error{
-	if s.currentLoop == nil{
+func (s *Stack) terminateLoop() error {
+	if s.currentLoop == nil {
 		return errors.New("missing start loop")
 	}
 	s.lastAdded = s.currentLoop
@@ -223,6 +229,7 @@ func (s *Stack) terminateLoop() error{
 	s.currentLoop = s.currentLoop.GetPreviousLoop()
 	return nil
 }
+
 //rewind loop to beginning
 func (s *Stack) endLoop() {
 	s.nextElement = s.current.RewindToStart()
@@ -230,6 +237,7 @@ func (s *Stack) endLoop() {
 func (s *Stack) isSkipExecution() bool {
 	return s.skip != nil
 }
+
 //ends loop execution and jump to next element.
 //if next element is empty that means that the loop execution needs to be skipped,
 //because current loop is not read fully (covers excludes look-ahead requirement)
@@ -241,7 +249,7 @@ func (s *Stack) breakLoop() {
 }
 
 func (s *Stack) validateExecution(c *Context) error {
-	if s.currentLoop != nil{
+	if s.currentLoop != nil {
 		return errors.New("missing closing brackets")
 	}
 	return nil
