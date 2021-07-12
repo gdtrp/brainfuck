@@ -159,16 +159,11 @@ func (s *Stack) addToStack(operation ExternalOperation) {
 	newOp := &OperationContainer{operation: operation}
 	newOp.ConfigureLink(s)
 }
-func (s *Stack) addLoopContainer() {
-	newOp := &LoopContainer{}
-	newOp.ConfigureLink(s)
-}
 
 //check if has next element in stack
 func (s *Stack) hasNext() bool {
 	return s.nextElement != nil
 }
-
 //retrieve element from stack and set next
 func (s *Stack) next() ExternalOperation {
 	current := s.nextElement.CurrentOperation()
@@ -214,7 +209,8 @@ func (s *Stack) execute(operation ExternalOperation, ctx *Context) error {
 
 //add loop element to stack and set it current
 func (s *Stack) initLoop() {
-	s.addLoopContainer()
+	newOp := &LoopContainer{}
+	newOp.ConfigureLink(s)
 }
 
 //mark current loop as finished. returns error if initLoop method wasn't called
