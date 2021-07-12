@@ -91,7 +91,6 @@ func (c *Context) Execute(operation ExternalOperation) error {
 			return err
 		}
 	}
-	//push operation to stack
 	c.Stack.push(operation)
 
 	if ok && internal.AfterAdd() != nil {

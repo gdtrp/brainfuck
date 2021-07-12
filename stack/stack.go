@@ -144,7 +144,7 @@ func (c *Link) HasMoreElements() bool {
 	return c.Next() != nil
 }
 
-
+//push operation to stack
 func (s *Stack) push(operation ExternalOperation) {
 	newOp := &OperationContainer{operation: operation}
 	newOp.ConfigureLink(s)
