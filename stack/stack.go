@@ -165,13 +165,13 @@ func (s *Stack) pop() ExternalOperation {
 
 
 //add loop element to stack and set it current
-func (s *Stack) initLoop() {
+func (s *Stack) pushLoop() {
 	newOp := &LoopContainer{}
 	newOp.ConfigureLink(s)
 }
 
 //mark current loop as finished. returns error if initLoop method wasn't called
-func (s *Stack) terminateLoop() error {
+func (s *Stack) closeLoop() error {
 	if s.currentLoop == nil {
 		return errors.New("missing start loop")
 	}
