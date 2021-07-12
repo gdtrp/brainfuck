@@ -30,7 +30,7 @@ func NewContextWithMemorySize(reader io.Reader, writer io.Writer, size int) *Con
 		CurrentIdx: 0,
 		Writer:     writer,
 		Reader:     reader,
-		Stack:      newStack(),
+		Stack:      &Stack{},
 	}
 }
 
@@ -84,7 +84,30 @@ func (c *Context) SetByte(index int, b byte) error {
 
 //execute next operation from stack
 func (c *Context) Execute(operation ExternalOperation) error {
-	return c.Stack.execute(operation, c)
+
+	internal, ok := operation.(internalOperation)
+	if ok && internal.OnAdd() != nil {
+		if err := internal.OnAdd()(c); err != nil {
+			return err
+		}
+	}
+	//push operation to stack
+	c.Stack.push(operation)
+
+	if ok && internal.AfterAdd() != nil {
+		if err := internal.AfterAdd()(c); err != nil {
+			return err
+		}
+	}
+	if !c.Stack.isSkipExecution() {
+		for c.Stack.hasNext() {
+			op := c.Stack.pop()
+			if err := op.Action()(c); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 func (c *Context) ValidateExecution() error {

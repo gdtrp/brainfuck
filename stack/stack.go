@@ -26,7 +26,6 @@ type OperationalElement interface {
 
 type LoopElement interface {
 	LinkedElement
-	firstElement() OperationalElement
 	setFirstElement(OperationalElement)
 }
 
@@ -92,9 +91,7 @@ func (c *OperationContainer) ConfigureLink(stack *Stack) {
 func (c *OperationContainer) linkWithLoop(element LoopElement) {
 	if element != nil {
 		c.loop = element
-		if element.firstElement() == nil {
-			element.setFirstElement(c)
-		}
+		element.setFirstElement(c)
 	}
 }
 func linkPrevious(element LinkedElement, c LinkedElement) {
@@ -109,15 +106,11 @@ func (c *LoopContainer) ConfigureLink(stack *Stack) {
 	stack.lastAdded = nil
 }
 
-func (c *LoopContainer) firstElement() OperationalElement {
-	return c.firstLoopElement
-}
-
 func (c *LoopContainer) setFirstElement(element OperationalElement) {
 	c.firstLoopElement = element
 }
 func (c *LoopContainer) CurrentOperation() OperationalElement {
-	return c.firstElement()
+	return c.firstLoopElement
 }
 func (c *Link) GetPreviousLoop() LoopElement {
 	prev := c.Previous()
@@ -151,11 +144,8 @@ func (c *Link) HasMoreElements() bool {
 	return c.Next() != nil
 }
 
-func newStack() *Stack {
-	return &Stack{}
-}
 
-func (s *Stack) addToStack(operation ExternalOperation) {
+func (s *Stack) push(operation ExternalOperation) {
 	newOp := &OperationContainer{operation: operation}
 	newOp.ConfigureLink(s)
 }
@@ -165,7 +155,7 @@ func (s *Stack) hasNext() bool {
 	return s.nextElement != nil
 }
 //retrieve element from stack and set next
-func (s *Stack) next() ExternalOperation {
+func (s *Stack) pop() ExternalOperation {
 	current := s.nextElement.CurrentOperation()
 	result := current.Operation()
 	s.current = current
@@ -173,39 +163,6 @@ func (s *Stack) next() ExternalOperation {
 	return result
 }
 
-//add new operation to stack
-func (s *Stack) prepareStack(operation ExternalOperation, ctx *Context) error {
-	internal, ok := operation.(internalOperation)
-	if ok && internal.OnAdd() != nil {
-		if err := internal.OnAdd()(ctx); err != nil {
-			return err
-		}
-	}
-	s.addToStack(operation)
-	if ok && internal.AfterAdd() != nil {
-		if err := internal.AfterAdd()(ctx); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-//add new operation to stack and execute
-func (s *Stack) execute(operation ExternalOperation, ctx *Context) error {
-	if err := s.prepareStack(operation, ctx); err != nil {
-		return err
-	}
-	//specific case for loops which needs to be added but without execution (covers excludes look-ahead requirement)
-	if !s.isSkipExecution() {
-		for s.hasNext() {
-			op := s.next()
-			if err := op.Action()(ctx); err != nil {
-				return err
-			}
-		}
-	}
-	return nil
-}
 
 //add loop element to stack and set it current
 func (s *Stack) initLoop() {
@@ -230,6 +187,7 @@ func (s *Stack) terminateLoop() error {
 func (s *Stack) endLoop() {
 	s.nextElement = s.current.RewindToStart()
 }
+//specific case for loops which needs to be added but without execution (covers excludes look-ahead requirement)
 func (s *Stack) isSkipExecution() bool {
 	return s.skip != nil
 }
